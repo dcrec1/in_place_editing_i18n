@@ -35,6 +35,14 @@ module InPlaceMacrosHelper
   # <tt>:script</tt>::            Instructs the in-place editor to evaluate the remote JavaScript response (default: false)
   # <tt>:click_to_edit_text</tt>::The text shown during mouseover the editable text (default: "Click to edit")
   def in_place_editor(field_id, options = {})
+    
+    def text(key, options)
+      options_value = options["#{key}_text".to_sym]
+      locale_value =  I18n.translate("in_place_editing.text.#{key}", :locale => options[:locale]) if !options_value
+      value = options_value || (locale_value if !locale_value.start_with? "translation missing: ")
+      "'#{value}'" if value
+    end
+    
     function =  "new Ajax.InPlaceEditor("
     function << "'#{field_id}', "
     function << "'#{url_for(options[:url])}'"
@@ -46,10 +54,10 @@ module InPlaceMacrosHelper
       options[:with] += " + '&authenticity_token=' + encodeURIComponent('#{form_authenticity_token}')"
     end
 
-    js_options['cancelText'] = %('#{options[:cancel_text]}') if options[:cancel_text]
-    js_options['okText'] = %('#{options[:save_text]}') if options[:save_text]
-    js_options['loadingText'] = %('#{options[:loading_text]}') if options[:loading_text]
-    js_options['savingText'] = %('#{options[:saving_text]}') if options[:saving_text]
+    js_options['cancelText'] = text(:cancel, options) if text(:cancel, options)
+    js_options['okText'] = text(:save, options) if text(:save, options)
+    js_options['loadingText'] = text(:loading, options) if text(:loading, options)
+    js_options['savingText'] = text(:saving, options) if text(:saving, options)
     js_options['rows'] = options[:rows] if options[:rows]
     js_options['cols'] = options[:cols] if options[:cols]
     js_options['size'] = options[:size] if options[:size]
@@ -75,4 +83,5 @@ module InPlaceMacrosHelper
     tag.to_content_tag(tag_options.delete(:tag), tag_options) +
     in_place_editor(tag_options[:id], in_place_editor_options)
   end
+  
 end

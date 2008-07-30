@@ -20,6 +20,7 @@ class InPlaceEditingTest < Test::Unit::TestCase
     end
     @controller = @controller.new
     @protect_against_forgery = false
+    clear_locale
   end
 
   def protect_against_forgery?
@@ -86,4 +87,34 @@ class InPlaceEditingTest < Test::Unit::TestCase
       :url => { :action => "action_to_set_value" },
       :text_between_controls => "or" )
   end
+  
+  def test_in_place_editor_with_i18n_with_locale_default_and_same_especified
+    localizate('pt-BR')
+    assert_match "Ajax.InPlaceEditor('some_input', 'http://www.example.com/', {cancelText:'cancelar', loadingText:'carregando...', okText:'salvar', savingText:'salvando...'})",
+      in_place_editor('some_input', :locale => 'pt-BR' )
+  end
+  
+  def test_in_place_editor_with_i18n_with_locale_default
+    localizate('pt-BR')
+    assert_match "Ajax.InPlaceEditor('some_input', 'http://www.example.com/', {cancelText:'cancelar', loadingText:'carregando...', okText:'salvar', savingText:'salvando...'})",
+      in_place_editor('some_input')
+  end
+  
+  def test_in_place_editor_with_i18n_with_locale_default_and_undefined_especified
+    localizate('pt-BR')
+    assert_dom_equal %(<script type=\"text/javascript\">\n//<![CDATA[\nnew Ajax.InPlaceEditor('some_input', 'http://www.example.com/inplace_edit', {loadingText:'Why are we waiting?'})\n//]]>\n</script>),
+      in_place_editor('some_input', 
+        :url => {:action => 'inplace_edit'}, 
+        :loading_text => 'Why are we waiting?', 
+        :locale => 'en-US')
+  end
+  
+  def test_in_place_editor_with_i18n_with_locale_default_and_other_especified
+    localizate('es-PE')
+    assert_dom_equal %(<script type=\"text/javascript\">\n//<![CDATA[\nnew Ajax.InPlaceEditor('some_input', 'http://www.example.com/inplace_edit', {cancelText:'cancelar', loadingText:'cargando...', okText:'guardar', savingText:'guardando...'})\n//]]>\n</script>),
+      in_place_editor('some_input', 
+        :url => {:action => 'inplace_edit'}, 
+        :locale => 'es-PE')
+  end
+  
 end
