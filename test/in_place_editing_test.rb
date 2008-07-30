@@ -116,5 +116,4 @@ class InPlaceEditingTest < Test::Unit::TestCase
         :url => {:action => 'inplace_edit'}, 
         :locale => 'es-PE')
   end
-  
 end
